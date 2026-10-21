@@ -23,3 +23,7 @@ class UserOut(BaseModel):
     phone: str | None
     role: UserRole
     is_active: bool
+
+class LoginRequest(BaseModel):
+    email: EmailStr
+    password: str = Field(min_length=1, max_length=128)
