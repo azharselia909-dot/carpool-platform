@@ -3,8 +3,11 @@ from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.database import get_session
+from app.routes import auth
 
 app = FastAPI(title="Identity Service")
+
+app.include_router(auth.router)
 
 
 @app.get("/")
