@@ -13,6 +13,7 @@ from app.refresh import hash_refresh_token, issue_refresh_token, revoke_family
 from app.schemas import LoginRequest, RegisterRequest, UserOut
 from app.security import burn_verify, hash_password, verify_password
 from app.tokens import create_access_token
+from app.ratelimit import enforce, rate_limit
 
 router = APIRouter(prefix="/auth", tags=["auth"])
 
@@ -59,7 +60,12 @@ def _clear_auth_cookies(response: Response) -> None:
     )
 
 
-@router.post("/register", response_model=UserOut, status_code=status.HTTP_201_CREATED)
+@router.post(
+    "/register",
+    response_model=UserOut,
+    status_code=status.HTTP_201_CREATED,
+    dependencies=[Depends(rate_limit("register", 10, 3600))],
+)
 async def register(
     payload: RegisterRequest,
     session: AsyncSession = Depends(get_session),
@@ -89,14 +95,18 @@ async def register(
     return user
 
 
-@router.post("/login", response_model=UserOut)
+@router.post(
+    "/login",
+    response_model=UserOut,
+    dependencies=[Depends(rate_limit("login-ip", 5, 60))],
+)
 async def login(
     payload: LoginRequest,
     response: Response,
     session: AsyncSession = Depends(get_session),
 ):
     invalid = HTTPException(status.HTTP_401_UNAUTHORIZED, "Invalid email or password")
-
+    await enforce(f"rl:login-email:{payload.email.lower()}", 10, 900)
     user = await session.scalar(select(User).where(User.email == payload.email.lower()))
 
     if user is None:
