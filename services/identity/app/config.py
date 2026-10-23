@@ -7,6 +7,7 @@ class Settings(BaseSettings):
     jwt_public_key_path: str = "keys/public.pem"
     jwt_issuer: str = "carpool-identity"
     access_token_minutes: int = 15
+    refresh_token_days: int = 7
     cookie_secure: bool = False
 
     model_config = SettingsConfigDict(env_file=".env")
