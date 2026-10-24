@@ -5,7 +5,7 @@ from fastapi import Cookie, Depends, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.database import get_session
-from app.models import User
+from app.models import User, UserRole
 from app.tokens import decode_access_token
 
 
@@ -29,3 +29,14 @@ async def get_current_user(
         raise unauthorized
 
     return user
+
+
+def require_roles(*allowed: UserRole):
+    """Build a dependency that only lets users with one of the allowed roles through."""
+
+    async def checker(user: User = Depends(get_current_user)) -> User:
+        if user.role not in allowed:
+            raise HTTPException(status.HTTP_403_FORBIDDEN, "Insufficient permissions")
+        return user
+
+    return checker

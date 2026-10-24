@@ -27,3 +27,8 @@ class UserOut(BaseModel):
 class LoginRequest(BaseModel):
     email: EmailStr
     password: str = Field(min_length=1, max_length=128)
+
+
+class AdminUserUpdate(BaseModel):
+    is_active: bool | None = None
+    role: UserRole | None = None

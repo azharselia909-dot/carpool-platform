@@ -15,6 +15,7 @@ CREATE DATABASE ride_db     OWNER ride_user;
 CREATE DATABASE booking_db  OWNER booking_user;
 CREATE DATABASE agent_db    OWNER agent_user;
 CREATE DATABASE realtime_db OWNER realtime_user;
+CREATE DATABASE identity_test_db OWNER identity_user;
 
 -- Boundary enforcement: other users cannot even connect to a service's database
 REVOKE CONNECT ON DATABASE identity_db FROM PUBLIC;
